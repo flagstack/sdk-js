@@ -37,6 +37,10 @@ The exact package structure is still subject to design, but is expected to inclu
 
 The repository is expected to use a workspace-based monorepo so that framework integrations can share the same core implementation and release tooling.
 
+## Contributing
+
+Organisation-wide contribution guidelines are maintained in [`flagstack/.github`](https://github.com/flagstack/.github). FlagStack uses a linear Git history and integrates pull requests by rebase only.
+
 ## Related repositories
 
 - [FlagStack](https://github.com/flagstack/flagstack)
@@ -44,6 +48,6 @@ The repository is expected to use a workspace-based monorepo so that framework i
 - [Go SDK](https://github.com/flagstack/sdk-go)
 - [.NET SDK](https://github.com/flagstack/sdk-dotnet)
 
-## License
+## Licence
 
-A license will be selected before the first public release.
+This SDK is licensed under the **Apache License 2.0**. See [`LICENSE`](LICENSE).

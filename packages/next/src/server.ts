@@ -24,7 +24,7 @@ export function createNextFlagStack(options: NodeFlagStackClientOptions): NextFl
 export {
   NodeFlagStackClient,
   createNodeClient,
-} from '@flagstack/node'
+}
 export type {
   Configuration,
   EvaluationContext,

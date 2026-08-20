@@ -1,0 +1,18 @@
+{
+  "name": "@flagstack/sdk-js-workspace",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc -b packages/core",
+    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo",
+    "test": "pnpm run build && node --test packages/core/test/*.test.mjs",
+    "typecheck": "tsc -b packages/core --pretty false"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
+}

@@ -1,28 +1,28 @@
 'use client'
 
 export {
-  BrowserFlagStackClient,
-  FlagStackProvider,
+  BrowserSwitchOnYourCodeClient,
+  SwitchOnYourCodeProvider,
   createBrowserClient,
   useBooleanFlag,
   useBooleanFlagDetails,
-  useFlagStackClient,
-  useFlagStackConfiguration,
-  useFlagStackReady,
+  useSwitchOnYourCodeClient,
+  useSwitchOnYourCodeConfiguration,
+  useSwitchOnYourCodeReady,
   useJSONFlag,
   useJSONFlagDetails,
   useNumberFlag,
   useNumberFlagDetails,
   useStringFlag,
   useStringFlagDetails,
-} from '@flagstack/react'
+} from '@switchonyourcode/react'
 export type {
-  BrowserFlagStackClientOptions,
+  BrowserSwitchOnYourCodeClientOptions,
   Configuration,
   EvaluationContext,
   EvaluationDetails,
   EvaluationErrorCode,
   EvaluationReason,
   FlagKind,
-  FlagStackProviderProps,
-} from '@flagstack/react'
+  SwitchOnYourCodeProviderProps,
+} from '@switchonyourcode/react'

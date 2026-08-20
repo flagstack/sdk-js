@@ -1,7 +1,7 @@
 {
-  "name": "@flagstack/react",
+  "name": "@switchonyourcode/react",
   "version": "0.0.0",
-  "description": "React bindings for the FlagStack browser SDK.",
+  "description": "React bindings for the SwitchOnYourCode browser SDK.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,7 +21,7 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "@flagstack/browser": "workspace:*"
+    "@switchonyourcode/browser": "workspace:*"
   },
   "peerDependencies": {
     "react": ">=18.2.0 <20"

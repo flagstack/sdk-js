@@ -6,45 +6,45 @@ import {
   type ReactNode,
 } from 'react'
 import {
-  type BrowserFlagStackClient,
+  type BrowserSwitchOnYourCodeClient,
   type Configuration,
   type EvaluationContext,
   type EvaluationDetails,
-} from '@flagstack/browser'
+} from '@switchonyourcode/browser'
 
-const FlagStackContext = createContext<BrowserFlagStackClient | undefined>(undefined)
+const SwitchOnYourCodeContext = createContext<BrowserSwitchOnYourCodeClient | undefined>(undefined)
 
-export interface FlagStackProviderProps {
-  client: BrowserFlagStackClient
+export interface SwitchOnYourCodeProviderProps {
+  client: BrowserSwitchOnYourCodeClient
   children?: ReactNode
 }
 
-export function FlagStackProvider({ client, children }: FlagStackProviderProps) {
-  return <FlagStackContext.Provider value={client}>{children}</FlagStackContext.Provider>
+export function SwitchOnYourCodeProvider({ client, children }: SwitchOnYourCodeProviderProps) {
+  return <SwitchOnYourCodeContext.Provider value={client}>{children}</SwitchOnYourCodeContext.Provider>
 }
 
-export function useFlagStackClient(): BrowserFlagStackClient {
-  const client = useContext(FlagStackContext)
+export function useSwitchOnYourCodeClient(): BrowserSwitchOnYourCodeClient {
+  const client = useContext(SwitchOnYourCodeContext)
   if (!client) {
-    throw new Error('FlagStack hooks must be used inside a FlagStackProvider.')
+    throw new Error('SwitchOnYourCode hooks must be used inside a SwitchOnYourCodeProvider.')
   }
   return client
 }
 
-export function useFlagStackConfiguration(): Configuration | undefined {
-  const client = useFlagStackClient()
+export function useSwitchOnYourCodeConfiguration(): Configuration | undefined {
+  const client = useSwitchOnYourCodeClient()
   const subscribe = useCallback((listener: () => void) => client.subscribe(listener), [client])
   const getSnapshot = useCallback(() => client.configuration, [client])
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
 }
 
-export function useFlagStackReady(): boolean {
-  return useFlagStackConfiguration() !== undefined
+export function useSwitchOnYourCodeReady(): boolean {
+  return useSwitchOnYourCodeConfiguration() !== undefined
 }
 
-function useReactiveClient(): BrowserFlagStackClient {
-  const client = useFlagStackClient()
-  useFlagStackConfiguration()
+function useReactiveClient(): BrowserSwitchOnYourCodeClient {
+  const client = useSwitchOnYourCodeClient()
+  useSwitchOnYourCodeConfiguration()
   return client
 }
 
@@ -97,15 +97,15 @@ export function useJSONFlagDetails<T>(
 }
 
 export {
-  BrowserFlagStackClient,
+  BrowserSwitchOnYourCodeClient,
   createBrowserClient,
-} from '@flagstack/browser'
+} from '@switchonyourcode/browser'
 export type {
-  BrowserFlagStackClientOptions,
+  BrowserSwitchOnYourCodeClientOptions,
   Configuration,
   EvaluationContext,
   EvaluationDetails,
   EvaluationErrorCode,
   EvaluationReason,
   FlagKind,
-} from '@flagstack/browser'
+} from '@switchonyourcode/browser'

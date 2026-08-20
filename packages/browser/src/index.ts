@@ -1,26 +1,26 @@
 import {
-  FlagStackClient,
+  SwitchOnYourCodeClient,
   type Configuration,
-  type FlagStackClientOptions,
+  type SwitchOnYourCodeClientOptions,
   type RefreshResult,
-} from '@flagstack/core'
+} from '@switchonyourcode/core'
 
-const CLIENT_KEY_PREFIX = 'fs_client_'
+const CLIENT_KEY_PREFIX = 'syoc_client_'
 
-export interface BrowserFlagStackClientOptions extends Omit<FlagStackClientOptions, 'sdkKey'> {
+export interface BrowserSwitchOnYourCodeClientOptions extends Omit<SwitchOnYourCodeClientOptions, 'sdkKey'> {
   clientKey: string
   autoPoll?: boolean
 }
 
-export class BrowserFlagStackClient extends FlagStackClient {
+export class BrowserSwitchOnYourCodeClient extends SwitchOnYourCodeClient {
   readonly #autoPoll: boolean
   readonly #configurationListeners: Set<() => void>
 
-  constructor(options: BrowserFlagStackClientOptions) {
+  constructor(options: BrowserSwitchOnYourCodeClientOptions) {
     const { clientKey, autoPoll = true, onConfigurationChanged, ...clientOptions } = options
     const normalizedKey = clientKey.trim()
     if (!normalizedKey.startsWith(CLIENT_KEY_PREFIX)) {
-      throw new TypeError('Browser SDK requires a FlagStack client key (fs_client_...).')
+      throw new TypeError('Browser SDK requires a SwitchOnYourCode client key (syoc_client_...).')
     }
 
     const configurationListeners = new Set<() => void>()
@@ -54,18 +54,18 @@ export class BrowserFlagStackClient extends FlagStackClient {
   }
 }
 
-export async function createBrowserClient(options: BrowserFlagStackClientOptions): Promise<BrowserFlagStackClient> {
-  const client = new BrowserFlagStackClient(options)
+export async function createBrowserClient(options: BrowserSwitchOnYourCodeClientOptions): Promise<BrowserSwitchOnYourCodeClient> {
+  const client = new BrowserSwitchOnYourCodeClient(options)
   await client.initialize()
   return client
 }
 
 export {
-  FlagStackAuthenticationError,
-  FlagStackConfigurationError,
-  FlagStackError,
-  FlagStackHTTPError,
-} from '@flagstack/core'
+  SwitchOnYourCodeAuthenticationError,
+  SwitchOnYourCodeConfigurationError,
+  SwitchOnYourCodeError,
+  SwitchOnYourCodeHTTPError,
+} from '@switchonyourcode/core'
 export type {
   Configuration,
   EvaluationContext,
@@ -73,4 +73,4 @@ export type {
   EvaluationErrorCode,
   EvaluationReason,
   FlagKind,
-} from '@flagstack/core'
+} from '@switchonyourcode/core'

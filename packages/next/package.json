@@ -1,7 +1,7 @@
 {
-  "name": "@flagstack/next",
+  "name": "@switchonyourcode/next",
   "version": "0.0.0",
-  "description": "Next.js App Router integration for FlagStack.",
+  "description": "Next.js App Router integration for SwitchOnYourCode.",
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,
@@ -23,9 +23,9 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "@flagstack/browser": "workspace:*",
-    "@flagstack/node": "workspace:*",
-    "@flagstack/react": "workspace:*"
+    "@switchonyourcode/browser": "workspace:*",
+    "@switchonyourcode/node": "workspace:*",
+    "@switchonyourcode/react": "workspace:*"
   },
   "peerDependencies": {
     "next": ">=15 <17",

@@ -16,7 +16,7 @@ import {
 
 export type RefreshResult = 'updated' | 'not-modified'
 
-export interface FlagStackClientOptions {
+export interface SwitchOnYourCodeClientOptions {
   baseUrl: string
   sdkKey: string
   fetch?: typeof fetch
@@ -25,33 +25,33 @@ export interface FlagStackClientOptions {
   onConfigurationChanged?: (configuration: Configuration) => void
 }
 
-export class FlagStackError extends Error {}
+export class SwitchOnYourCodeError extends Error {}
 
-export class FlagStackAuthenticationError extends FlagStackError {
-  constructor(message = 'FlagStack SDK credential was rejected.') {
+export class SwitchOnYourCodeAuthenticationError extends SwitchOnYourCodeError {
+  constructor(message = 'SwitchOnYourCode SDK credential was rejected.') {
     super(message)
-    this.name = 'FlagStackAuthenticationError'
+    this.name = 'SwitchOnYourCodeAuthenticationError'
   }
 }
 
-export class FlagStackHTTPError extends FlagStackError {
+export class SwitchOnYourCodeHTTPError extends SwitchOnYourCodeError {
   readonly status: number
 
   constructor(status: number, message: string) {
     super(message)
-    this.name = 'FlagStackHTTPError'
+    this.name = 'SwitchOnYourCodeHTTPError'
     this.status = status
   }
 }
 
-export class FlagStackConfigurationError extends FlagStackError {
+export class SwitchOnYourCodeConfigurationError extends SwitchOnYourCodeError {
   constructor(message: string) {
     super(message)
-    this.name = 'FlagStackConfigurationError'
+    this.name = 'SwitchOnYourCodeConfigurationError'
   }
 }
 
-export class FlagStackClient {
+export class SwitchOnYourCodeClient {
   readonly #baseUrl: string
   readonly #sdkKey: string
   readonly #fetch: typeof fetch
@@ -64,14 +64,14 @@ export class FlagStackClient {
   #flags = new Map<string, ConfigurationFlag>()
   #pollTimer: ReturnType<typeof setInterval> | undefined
 
-  constructor(options: FlagStackClientOptions) {
+  constructor(options: SwitchOnYourCodeClientOptions) {
     const baseUrl = options.baseUrl.trim().replace(/\/+$/, '')
     const sdkKey = options.sdkKey.trim()
     if (baseUrl === '') {
-      throw new TypeError('FlagStack baseUrl is required.')
+      throw new TypeError('SwitchOnYourCode baseUrl is required.')
     }
     if (sdkKey === '') {
-      throw new TypeError('FlagStack sdkKey is required.')
+      throw new TypeError('SwitchOnYourCode sdkKey is required.')
     }
     const fetchImplementation = options.fetch ?? globalThis.fetch
     if (typeof fetchImplementation !== 'function') {
@@ -116,22 +116,22 @@ export class FlagStackClient {
     })
     if (response.status === 304) {
       if (!this.#configuration) {
-        throw new FlagStackConfigurationError('FlagStack returned 304 before any configuration was loaded.')
+        throw new SwitchOnYourCodeConfigurationError('SwitchOnYourCode returned 304 before any configuration was loaded.')
       }
       return 'not-modified'
     }
     if (response.status === 401) {
-      throw new FlagStackAuthenticationError()
+      throw new SwitchOnYourCodeAuthenticationError()
     }
     if (!response.ok) {
-      throw new FlagStackHTTPError(response.status, `FlagStack configuration request failed with HTTP ${response.status}.`)
+      throw new SwitchOnYourCodeHTTPError(response.status, `SwitchOnYourCode configuration request failed with HTTP ${response.status}.`)
     }
 
     let payload: unknown
     try {
       payload = await response.json()
     } catch (error) {
-      throw new FlagStackConfigurationError(`FlagStack configuration response was not valid JSON: ${error instanceof Error ? error.message : String(error)}`)
+      throw new SwitchOnYourCodeConfigurationError(`SwitchOnYourCode configuration response was not valid JSON: ${error instanceof Error ? error.message : String(error)}`)
     }
     const configuration = parseConfiguration(payload)
     this.#configuration = configuration
@@ -196,7 +196,7 @@ export class FlagStackClient {
 
   #evaluateTyped<T>(key: string, expectedKind: FlagKind, fallback: T, context: EvaluationContext): EvaluationDetails<T> {
     if (!this.#configuration) {
-      return fallbackDetails(fallback, 'PROVIDER_NOT_READY', 'FlagStack configuration has not been loaded yet.')
+      return fallbackDetails(fallback, 'PROVIDER_NOT_READY', 'SwitchOnYourCode configuration has not been loaded yet.')
     }
     const flag = this.#flags.get(key)
     if (!flag) {
@@ -211,16 +211,16 @@ export class FlagStackClient {
 
 export function parseConfiguration(payload: unknown): Configuration {
   if (!isRecord(payload)) {
-    throw new FlagStackConfigurationError('FlagStack configuration must be an object.')
+    throw new SwitchOnYourCodeConfigurationError('SwitchOnYourCode configuration must be an object.')
   }
   if (payload.schema_version !== SCHEMA_VERSION) {
-    throw new FlagStackConfigurationError(`Unsupported FlagStack schema version ${String(payload.schema_version)}.`)
+    throw new SwitchOnYourCodeConfigurationError(`Unsupported SwitchOnYourCode schema version ${String(payload.schema_version)}.`)
   }
   if (!isRecord(payload.environment) || !nonEmptyString(payload.environment.id) || !nonEmptyString(payload.environment.key)) {
-    throw new FlagStackConfigurationError('FlagStack configuration environment is invalid.')
+    throw new SwitchOnYourCodeConfigurationError('SwitchOnYourCode configuration environment is invalid.')
   }
   if (!Array.isArray(payload.flags) || !Array.isArray(payload.segments)) {
-    throw new FlagStackConfigurationError('FlagStack configuration flags and segments must be arrays.')
+    throw new SwitchOnYourCodeConfigurationError('SwitchOnYourCode configuration flags and segments must be arrays.')
   }
 
   const segments = payload.segments.map(parseSegment)
@@ -234,29 +234,29 @@ export function parseConfiguration(payload: unknown): Configuration {
   try {
     validateEvaluationConfiguration(configuration)
   } catch (error) {
-    throw new FlagStackConfigurationError(`FlagStack configuration is not compatible with the v1 evaluator: ${error instanceof Error ? error.message : String(error)}`)
+    throw new SwitchOnYourCodeConfigurationError(`SwitchOnYourCode configuration is not compatible with the v1 evaluator: ${error instanceof Error ? error.message : String(error)}`)
   }
   return configuration
 }
 
 function parseFlag(value: unknown): ConfigurationFlag {
   if (!isRecord(value) || !nonEmptyString(value.id) || !nonEmptyString(value.key)) {
-    throw new FlagStackConfigurationError('Flag entry is missing a valid id or key.')
+    throw new SwitchOnYourCodeConfigurationError('Flag entry is missing a valid id or key.')
   }
   if (!isFlagKind(value.kind) || typeof value.enabled !== 'boolean' || !Number.isInteger(value.revision) || (value.revision as number) < 0) {
-    throw new FlagStackConfigurationError(`Flag ${JSON.stringify(value.key)} has invalid kind, enabled state or revision.`)
+    throw new SwitchOnYourCodeConfigurationError(`Flag ${JSON.stringify(value.key)} has invalid kind, enabled state or revision.`)
   }
   if (!Array.isArray(value.variants) || !isRecord(value.policy)) {
-    throw new FlagStackConfigurationError(`Flag ${JSON.stringify(value.key)} has invalid variants or policy.`)
+    throw new SwitchOnYourCodeConfigurationError(`Flag ${JSON.stringify(value.key)} has invalid variants or policy.`)
   }
   const variants = value.variants.map((variant) => {
     if (!isRecord(variant) || !nonEmptyString(variant.key) || !Object.prototype.hasOwnProperty.call(variant, 'value')) {
-      throw new FlagStackConfigurationError(`Flag ${JSON.stringify(value.key)} contains an invalid variant.`)
+      throw new SwitchOnYourCodeConfigurationError(`Flag ${JSON.stringify(value.key)} contains an invalid variant.`)
     }
     return { key: variant.key, value: variant.value }
   })
   if (!Object.prototype.hasOwnProperty.call(value, 'default_value')) {
-    throw new FlagStackConfigurationError(`Flag ${JSON.stringify(value.key)} is missing default_value.`)
+    throw new SwitchOnYourCodeConfigurationError(`Flag ${JSON.stringify(value.key)} is missing default_value.`)
   }
   return {
     id: value.id,
@@ -274,11 +274,11 @@ function parsePolicy(value: Record<string, unknown>): Policy {
   const policy: Policy = {}
   if (value.rules !== undefined) {
     if (!Array.isArray(value.rules)) {
-      throw new FlagStackConfigurationError('Policy rules must be an array.')
+      throw new SwitchOnYourCodeConfigurationError('Policy rules must be an array.')
     }
     policy.rules = value.rules.map((rule) => {
       if (!isRecord(rule) || !nonEmptyString(rule.id) || (rule.match !== 'all' && rule.match !== 'any') || !Array.isArray(rule.conditions) || !isRecord(rule.outcome)) {
-        throw new FlagStackConfigurationError('Policy contains an invalid rule.')
+        throw new SwitchOnYourCodeConfigurationError('Policy contains an invalid rule.')
       }
       const parsed: Rule = {
         id: rule.id,
@@ -291,7 +291,7 @@ function parsePolicy(value: Record<string, unknown>): Policy {
   }
   if (value.fallthrough !== undefined) {
     if (!isRecord(value.fallthrough)) {
-      throw new FlagStackConfigurationError('Policy fallthrough must be an object.')
+      throw new SwitchOnYourCodeConfigurationError('Policy fallthrough must be an object.')
     }
     policy.fallthrough = parseOutcome(value.fallthrough)
   }
@@ -300,18 +300,18 @@ function parsePolicy(value: Record<string, unknown>): Policy {
 
 function parseSegment(value: unknown): Segment {
   if (!isRecord(value) || !nonEmptyString(value.key) || typeof value.name !== 'string' || (value.match !== 'all' && value.match !== 'any') || !Array.isArray(value.conditions)) {
-    throw new FlagStackConfigurationError('Configuration contains an invalid segment.')
+    throw new SwitchOnYourCodeConfigurationError('Configuration contains an invalid segment.')
   }
   return { key: value.key, name: value.name, match: value.match, conditions: value.conditions.map(parseCondition) }
 }
 
 function parseCondition(value: unknown): Segment['conditions'][number] {
   if (!isRecord(value) || typeof value.operator !== 'string') {
-    throw new FlagStackConfigurationError('Configuration contains an invalid condition.')
+    throw new SwitchOnYourCodeConfigurationError('Configuration contains an invalid condition.')
   }
   const condition: Segment['conditions'][number] = { operator: value.operator as Segment['conditions'][number]['operator'] }
   if (value.attribute !== undefined) {
-    if (typeof value.attribute !== 'string') throw new FlagStackConfigurationError('Condition attribute must be a string.')
+    if (typeof value.attribute !== 'string') throw new SwitchOnYourCodeConfigurationError('Condition attribute must be a string.')
     condition.attribute = value.attribute
   }
   if (Object.prototype.hasOwnProperty.call(value, 'value')) {
@@ -323,18 +323,18 @@ function parseCondition(value: unknown): Segment['conditions'][number] {
 function parseOutcome(value: Record<string, unknown>): Outcome {
   const outcome: Outcome = {}
   if (value.variant !== undefined) {
-    if (typeof value.variant !== 'string') throw new FlagStackConfigurationError('Outcome variant must be a string.')
+    if (typeof value.variant !== 'string') throw new SwitchOnYourCodeConfigurationError('Outcome variant must be a string.')
     outcome.variant = value.variant
   }
   if (value.bucket_by !== undefined) {
-    if (typeof value.bucket_by !== 'string') throw new FlagStackConfigurationError('Outcome bucket_by must be a string.')
+    if (typeof value.bucket_by !== 'string') throw new SwitchOnYourCodeConfigurationError('Outcome bucket_by must be a string.')
     outcome.bucket_by = value.bucket_by
   }
   if (value.rollout !== undefined) {
-    if (!Array.isArray(value.rollout)) throw new FlagStackConfigurationError('Outcome rollout must be an array.')
+    if (!Array.isArray(value.rollout)) throw new SwitchOnYourCodeConfigurationError('Outcome rollout must be an array.')
     outcome.rollout = value.rollout.map((allocation) => {
       if (!isRecord(allocation) || !nonEmptyString(allocation.variant) || !Number.isInteger(allocation.weight)) {
-        throw new FlagStackConfigurationError('Outcome contains an invalid rollout allocation.')
+        throw new SwitchOnYourCodeConfigurationError('Outcome contains an invalid rollout allocation.')
       }
       return { variant: allocation.variant, weight: allocation.weight as number }
     })

@@ -22,5 +22,8 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "re2js": "2.8.6"
   }
 }

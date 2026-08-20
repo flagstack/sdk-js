@@ -7,13 +7,17 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -b packages/core packages/browser packages/node",
-    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo packages/browser/dist packages/browser/tsconfig.tsbuildinfo packages/node/dist packages/node/tsconfig.tsbuildinfo",
-    "test": "pnpm run build && node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs",
-    "test:built": "node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs",
-    "typecheck": "tsc -b packages/core packages/browser packages/node --pretty false"
+    "build": "tsc -b packages/core packages/browser packages/node packages/react packages/next",
+    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo packages/browser/dist packages/browser/tsconfig.tsbuildinfo packages/node/dist packages/node/tsconfig.tsbuildinfo packages/react/dist packages/react/tsconfig.tsbuildinfo packages/next/dist packages/next/tsconfig.tsbuildinfo",
+    "test": "pnpm run build && pnpm run test:built",
+    "test:built": "node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs packages/react/test/*.test.mjs packages/next/test/*.test.mjs",
+    "typecheck": "tsc -b packages/core packages/browser packages/node packages/react packages/next --pretty false"
   },
   "devDependencies": {
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "typescript": "7.0.2"
   }
 }

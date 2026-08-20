@@ -1,5 +1,6 @@
 import {
   FlagStackClient,
+  type Configuration,
   type FlagStackClientOptions,
   type RefreshResult,
 } from '@flagstack/core'
@@ -13,16 +14,28 @@ export interface BrowserFlagStackClientOptions extends Omit<FlagStackClientOptio
 
 export class BrowserFlagStackClient extends FlagStackClient {
   readonly #autoPoll: boolean
+  readonly #configurationListeners: Set<() => void>
 
   constructor(options: BrowserFlagStackClientOptions) {
-    const { clientKey, autoPoll = true, ...clientOptions } = options
+    const { clientKey, autoPoll = true, onConfigurationChanged, ...clientOptions } = options
     const normalizedKey = clientKey.trim()
     if (!normalizedKey.startsWith(CLIENT_KEY_PREFIX)) {
       throw new TypeError('Browser SDK requires a FlagStack client key (fs_client_...).')
     }
 
-    super({ ...clientOptions, sdkKey: normalizedKey })
+    const configurationListeners = new Set<() => void>()
+    super({
+      ...clientOptions,
+      sdkKey: normalizedKey,
+      onConfigurationChanged: (configuration: Configuration) => {
+        onConfigurationChanged?.(configuration)
+        for (const listener of configurationListeners) {
+          listener()
+        }
+      },
+    })
     this.#autoPoll = autoPoll
+    this.#configurationListeners = configurationListeners
   }
 
   async initialize(): Promise<RefreshResult> {
@@ -31,6 +44,13 @@ export class BrowserFlagStackClient extends FlagStackClient {
       this.startPolling()
     }
     return result
+  }
+
+  subscribe(listener: () => void): () => void {
+    this.#configurationListeners.add(listener)
+    return () => {
+      this.#configurationListeners.delete(listener)
+    }
   }
 }
 

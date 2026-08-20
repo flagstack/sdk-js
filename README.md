@@ -128,6 +128,61 @@ export default async function Page() {
 
 Client Components import from `@flagstack/next/client`, which is a `'use client'` entry exposing the React/browser provider and hooks. The server SDK key is never part of that client module graph.
 
+### `@flagstack/openfeature`
+
+OpenFeature provider adapters that preserve FlagStack's local evaluation semantics while allowing applications to use the vendor-neutral OpenFeature API.
+
+Server applications use the secret Node SDK through `@flagstack/openfeature/server`:
+
+```ts
+import { OpenFeature } from '@openfeature/server-sdk'
+import { FlagStackServerProvider } from '@flagstack/openfeature/server'
+
+await OpenFeature.setProviderAndWait(
+  new FlagStackServerProvider({
+    baseUrl: 'https://flags.example.com',
+    serverKey: process.env.FLAGSTACK_SDK_KEY!,
+    autoPoll: true,
+  }),
+)
+
+const client = OpenFeature.getClient()
+const enabled = await client.getBooleanValue('new-checkout', false, {
+  targetingKey: 'user-123',
+  plan: 'enterprise',
+})
+```
+
+Browser applications use the public client SDK through `@flagstack/openfeature/client`:
+
+```ts
+import { OpenFeature } from '@openfeature/web-sdk'
+import { FlagStackClientProvider } from '@flagstack/openfeature/client'
+
+await OpenFeature.setProviderAndWait(
+  new FlagStackClientProvider({
+    baseUrl: 'https://flags.example.com',
+    clientKey: 'fs_client_public-id',
+  }),
+)
+
+await OpenFeature.setContext({
+  targetingKey: 'user-123',
+  country: 'GB',
+})
+```
+
+The adapters:
+
+- implement the current OpenFeature server and web provider interfaces;
+- map FlagStack resolution reasons and error codes to OpenFeature resolution details;
+- expose environment, revision, enabled state and matched rule ID as OpenFeature flag metadata;
+- normalize OpenFeature `Date` context values to ISO-8601 strings before local FlagStack evaluation;
+- emit `PROVIDER_CONFIGURATION_CHANGED` after refreshed configuration changes;
+- keep server and browser provider entry points separate so server credentials and dependencies cannot enter a browser bundle accidentally.
+
+The server provider follows `@flagstack/node` lifecycle defaults, so polling is opt-in. The client provider follows `@flagstack/browser` and polls by default.
+
 ## Core usage
 
 Applications that need complete lifecycle control can use `@flagstack/core` directly:
@@ -145,13 +200,7 @@ await flags.refresh()
 
 `refresh()` only replaces in-memory state after the downloaded document passes schema and evaluator validation. A later refresh failure does not erase the last valid configuration.
 
-## Planned package
-
-```text
-@flagstack/openfeature
-```
-
-Framework packages build on the runtime/core packages rather than implementing separate targeting or rollout semantics.
+Framework and interoperability packages build on the runtime/core packages rather than implementing separate targeting or rollout semantics.
 
 ## Development
 

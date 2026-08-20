@@ -70,6 +70,64 @@ const variant = flags.getStringValue('checkout-layout', 'control', {
 
 Long-running services can enable polling; short-lived processes can call `refresh()` explicitly when needed.
 
+### `@flagstack/react`
+
+Reactive React bindings over `@flagstack/browser`. A `FlagStackProvider` supplies a browser client, while hooks subscribe to configuration changes through React's external-store API and continue to evaluate locally.
+
+```tsx
+import { FlagStackProvider, useBooleanFlag } from '@flagstack/react'
+import { createBrowserClient } from '@flagstack/browser'
+
+const flags = await createBrowserClient({
+  baseUrl: 'https://flags.example.com',
+  clientKey: 'fs_client_public-id',
+})
+
+function Checkout() {
+  const enabled = useBooleanFlag('new-checkout', false, {
+    targetingKey: 'user-123',
+  })
+  return enabled ? <NewCheckout /> : <CurrentCheckout />
+}
+
+root.render(
+  <FlagStackProvider client={flags}>
+    <Checkout />
+  </FlagStackProvider>,
+)
+```
+
+The package also provides typed detail hooks, `useFlagStackReady()`, `useFlagStackConfiguration()` and `useFlagStackClient()`.
+
+### `@flagstack/next`
+
+App Router integration with explicit server and client entry points.
+
+Server Components use `@flagstack/next/server`. `createNextFlagStack()` wraps the Node SDK in React `cache()`, so components in one server render share the same loaded FlagStack snapshot while separate requests remain isolated.
+
+```ts
+import { createNextFlagStack } from '@flagstack/next/server'
+
+export const flagstack = createNextFlagStack({
+  baseUrl: process.env.FLAGSTACK_URL!,
+  serverKey: process.env.FLAGSTACK_SDK_KEY!,
+})
+```
+
+```tsx
+import { flagstack } from '@/lib/flagstack'
+
+export default async function Page() {
+  const flags = await flagstack.getClient()
+  const enabled = flags.getBooleanValue('new-checkout', false, {
+    targetingKey: 'user-123',
+  })
+  return enabled ? <NewCheckout /> : <CurrentCheckout />
+}
+```
+
+Client Components import from `@flagstack/next/client`, which is a `'use client'` entry exposing the React/browser provider and hooks. The server SDK key is never part of that client module graph.
+
 ## Core usage
 
 Applications that need complete lifecycle control can use `@flagstack/core` directly:
@@ -87,18 +145,13 @@ await flags.refresh()
 
 `refresh()` only replaces in-memory state after the downloaded document passes schema and evaluator validation. A later refresh failure does not erase the last valid configuration.
 
-## Planned packages
+## Planned package
 
 ```text
-@flagstack/core
-@flagstack/browser
-@flagstack/node
-@flagstack/react
-@flagstack/next
 @flagstack/openfeature
 ```
 
-Framework packages must build on the runtime/core packages rather than implement separate targeting or rollout semantics.
+Framework packages build on the runtime/core packages rather than implementing separate targeting or rollout semantics.
 
 ## Development
 

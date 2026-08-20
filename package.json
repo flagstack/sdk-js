@@ -7,10 +7,11 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -b packages/core packages/browser",
-    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo packages/browser/dist packages/browser/tsconfig.tsbuildinfo",
-    "test": "pnpm run build && node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs",
-    "typecheck": "tsc -b packages/core packages/browser --pretty false"
+    "build": "tsc -b packages/core packages/browser packages/node",
+    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo packages/browser/dist packages/browser/tsconfig.tsbuildinfo packages/node/dist packages/node/tsconfig.tsbuildinfo",
+    "test": "pnpm run build && node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs",
+    "test:built": "node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs",
+    "typecheck": "tsc -b packages/core packages/browser packages/node --pretty false"
   },
   "devDependencies": {
     "typescript": "7.0.2"

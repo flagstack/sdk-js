@@ -10,7 +10,7 @@ This repository is a pnpm workspace. The shared `@flagstack/core` package owns t
 
 ### `@flagstack/core`
 
-The core package is runtime-neutral and has no runtime dependencies. It supports Node.js 22+ and browser environments with standard `fetch`, `Headers`, `TextEncoder`, timers and typed arrays.
+The core package is runtime-neutral. It supports Node.js 22+ and browser environments with standard `fetch`, `Headers`, `TextEncoder`, timers and typed arrays. Its only runtime dependency is the pure-JavaScript `re2js` engine so regex targeting follows the same RE2 syntax as FlagStack's Go control plane rather than browser-specific `RegExp` semantics.
 
 It provides:
 
@@ -23,7 +23,7 @@ It provides:
 - named variants, ordered targeting rules and reusable segments;
 - deterministic percentage and multivariate rollouts;
 - nested evaluation-context attributes;
-- semantic-version, regex, collection and numeric operators;
+- semantic-version, RE2-compatible regex, collection and numeric operators;
 - OpenFeature-style resolution reasons and error metadata;
 - typed fallback behaviour when configuration is not ready, a flag is absent or a getter uses the wrong flag kind.
 

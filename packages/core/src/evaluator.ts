@@ -1,3 +1,4 @@
+import { RE2JS } from 're2js'
 import { bucket } from './bucket.js'
 import { EvaluationFailure } from './evaluation-error.js'
 import { compareSemver } from './semver.js'
@@ -193,7 +194,7 @@ function conditionMatches(
     case 'matches_regex': {
       if (typeof actual !== 'string' || typeof expected !== 'string') return false
       try {
-        return new RegExp(expected).test(actual)
+        return RE2JS.compile(expected).test(actual)
       } catch (error) {
         throw new EvaluationFailure('PARSE_ERROR', error instanceof Error ? error.message : 'invalid regular expression')
       }

@@ -110,6 +110,25 @@ test('rollout without targeting key fails safely with reference error code', () 
   assert.equal(result.errorCode, 'TARGETING_KEY_MISSING')
 })
 
+test('regex matching uses Go-compatible RE2 syntax', () => {
+  const flag = booleanFlag({
+    policy: {
+      rules: [
+        {
+          id: 'staff-email',
+          match: 'all',
+          conditions: [{ attribute: 'email', operator: 'matches_regex', value: '(?i)@example\\.com$' }],
+          outcome: { variant: 'on' },
+        },
+      ],
+      fallthrough: { variant: 'off' },
+    },
+  })
+
+  assert.equal(evaluateFlag(flag, 'env-1', { email: 'Adam@EXAMPLE.COM' }).value, true)
+  assert.equal(evaluateFlag(flag, 'env-1', { email: 'user@elsewhere.test' }).value, false)
+})
+
 test('semantic-version operators accept Go x/mod shorthand versions', () => {
   const flag = booleanFlag({
     policy: {

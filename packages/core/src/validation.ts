@@ -1,3 +1,4 @@
+import { RE2JS } from 're2js'
 import { EvaluationFailure } from './evaluation-error.js'
 import { compareSemver } from './semver.js'
 import {
@@ -115,7 +116,7 @@ function validateCondition(condition: Condition): void {
         throw new EvaluationFailure('PARSE_ERROR', 'regex condition value must be a string')
       }
       try {
-        new RegExp(condition.value)
+        RE2JS.compile(condition.value)
       } catch (error) {
         throw new EvaluationFailure('PARSE_ERROR', error instanceof Error ? error.message : 'invalid regular expression')
       }

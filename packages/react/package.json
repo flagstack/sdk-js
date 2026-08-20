@@ -1,0 +1,29 @@
+{
+  "name": "@flagstack/react",
+  "version": "0.0.0",
+  "description": "React bindings for the FlagStack browser SDK.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@flagstack/browser": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=18.2.0 <20"
+  }
+}

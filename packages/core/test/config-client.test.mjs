@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
-  FlagStackAuthenticationError,
-  FlagStackClient,
-  FlagStackConfigurationError,
+  SwitchOnYourCodeAuthenticationError,
+  SwitchOnYourCodeClient,
+  SwitchOnYourCodeConfigurationError,
 } from '../dist/index.js'
 
 function configuration(overrides = {}) {
@@ -46,7 +46,7 @@ test('refresh loads schema v1, retains ETag and evaluates synchronously', async 
       headers: { 'Content-Type': 'application/json', ETag: '"sha256-one"' },
     })
   }
-  const client = new FlagStackClient({ baseUrl: 'https://flags.example.test/', sdkKey: 'fs_client_public', fetch })
+  const client = new SwitchOnYourCodeClient({ baseUrl: 'https://flags.example.test/', sdkKey: 'syoc_client_public', fetch })
 
   assert.equal(client.ready, false)
   assert.equal(client.getBooleanValue('new-checkout', false), false)
@@ -56,7 +56,7 @@ test('refresh loads schema v1, retains ETag and evaluates synchronously', async 
   assert.equal(client.getBooleanValue('new-checkout', false), true)
   assert.equal(client.getStringValue('headline', 'fallback'), 'Control')
   assert.equal(requests[0].url, 'https://flags.example.test/sdk/v1/config')
-  assert.equal(requests[0].init.headers.get('Authorization'), 'Bearer fs_client_public')
+  assert.equal(requests[0].init.headers.get('Authorization'), 'Bearer syoc_client_public')
 })
 
 test('conditional refresh sends If-None-Match and accepts 304', async () => {
@@ -70,7 +70,7 @@ test('conditional refresh sends If-None-Match and accepts 304', async () => {
     }
     return new Response(null, { status: 304 })
   }
-  const client = new FlagStackClient({ baseUrl: 'https://flags.example.test', sdkKey: 'fs_server_id.secret', fetch })
+  const client = new SwitchOnYourCodeClient({ baseUrl: 'https://flags.example.test', sdkKey: 'syoc_server_id.secret', fetch })
   assert.equal(await client.refresh(), 'updated')
   assert.equal(await client.refresh(), 'not-modified')
   assert.deepEqual(seenEtags, [null, '"sha256-one"'])
@@ -86,7 +86,7 @@ test('failed refresh leaves the last known configuration intact', async () => {
     }
     return new Response('temporarily unavailable', { status: 503 })
   }
-  const client = new FlagStackClient({ baseUrl: 'https://flags.example.test', sdkKey: 'fs_client_public', fetch })
+  const client = new SwitchOnYourCodeClient({ baseUrl: 'https://flags.example.test', sdkKey: 'syoc_client_public', fetch })
   await client.refresh()
   await assert.rejects(client.refresh())
   assert.equal(client.getBooleanValue('new-checkout', false), true)
@@ -99,16 +99,16 @@ test('unsupported future schema is rejected without replacing cached configurati
     request += 1
     return new Response(JSON.stringify(request === 1 ? configuration() : configuration({ schema_version: 2 })), { status: 200 })
   }
-  const client = new FlagStackClient({ baseUrl: 'https://flags.example.test', sdkKey: 'fs_client_public', fetch })
+  const client = new SwitchOnYourCodeClient({ baseUrl: 'https://flags.example.test', sdkKey: 'syoc_client_public', fetch })
   await client.refresh()
-  await assert.rejects(client.refresh(), FlagStackConfigurationError)
+  await assert.rejects(client.refresh(), SwitchOnYourCodeConfigurationError)
   assert.equal(client.getBooleanValue('new-checkout', false), true)
 })
 
 test('typed getters use caller fallback for not-ready, missing and type mismatch', async () => {
-  const client = new FlagStackClient({
+  const client = new SwitchOnYourCodeClient({
     baseUrl: 'https://flags.example.test',
-    sdkKey: 'fs_client_public',
+    sdkKey: 'syoc_client_public',
     fetch: async () => new Response(JSON.stringify(configuration()), { status: 200 }),
   })
   assert.equal(client.getBooleanDetails('new-checkout', false).errorCode, 'PROVIDER_NOT_READY')
@@ -120,10 +120,10 @@ test('typed getters use caller fallback for not-ready, missing and type mismatch
 })
 
 test('401 responses surface a specific authentication error', async () => {
-  const client = new FlagStackClient({
+  const client = new SwitchOnYourCodeClient({
     baseUrl: 'https://flags.example.test',
     sdkKey: 'bad-key',
     fetch: async () => new Response(null, { status: 401 }),
   })
-  await assert.rejects(client.refresh(), FlagStackAuthenticationError)
+  await assert.rejects(client.refresh(), SwitchOnYourCodeAuthenticationError)
 })

@@ -8,24 +8,24 @@ import {
   type ResolutionDetails,
 } from '@openfeature/server-sdk'
 import {
-  NodeFlagStackClient,
-  type NodeFlagStackClientOptions,
-} from '@flagstack/node'
-import { toFlagStackContext, toOpenFeatureResolution } from './common.js'
+  NodeSwitchOnYourCodeClient,
+  type NodeSwitchOnYourCodeClientOptions,
+} from '@switchonyourcode/node'
+import { toSwitchOnYourCodeContext, toOpenFeatureResolution } from './common.js'
 
-export type FlagStackServerProviderOptions = NodeFlagStackClientOptions
+export type SwitchOnYourCodeServerProviderOptions = NodeSwitchOnYourCodeClientOptions
 
-export class FlagStackServerProvider implements Provider {
-  readonly metadata = { name: 'FlagStack' } as const
+export class SwitchOnYourCodeServerProvider implements Provider {
+  readonly metadata = { name: 'Switch On Your Code' } as const
   readonly runsOn = 'server' as const
   readonly events = new OpenFeatureEventEmitter()
-  readonly client: NodeFlagStackClient
+  readonly client: NodeSwitchOnYourCodeClient
 
   #initialized = false
 
-  constructor(options: FlagStackServerProviderOptions) {
+  constructor(options: SwitchOnYourCodeServerProviderOptions) {
     const { onConfigurationChanged, ...clientOptions } = options
-    this.client = new NodeFlagStackClient({
+    this.client = new NodeSwitchOnYourCodeClient({
       ...clientOptions,
       onConfigurationChanged: (configuration) => {
         onConfigurationChanged?.(configuration)
@@ -53,7 +53,7 @@ export class FlagStackServerProvider implements Provider {
     _logger: Logger,
   ): Promise<ResolutionDetails<boolean>> {
     return toOpenFeatureResolution(
-      this.client.getBooleanDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getBooleanDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )
@@ -66,7 +66,7 @@ export class FlagStackServerProvider implements Provider {
     _logger: Logger,
   ): Promise<ResolutionDetails<string>> {
     return toOpenFeatureResolution(
-      this.client.getStringDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getStringDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )
@@ -79,7 +79,7 @@ export class FlagStackServerProvider implements Provider {
     _logger: Logger,
   ): Promise<ResolutionDetails<number>> {
     return toOpenFeatureResolution(
-      this.client.getNumberDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getNumberDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )
@@ -92,7 +92,7 @@ export class FlagStackServerProvider implements Provider {
     _logger: Logger,
   ): Promise<ResolutionDetails<T>> {
     return toOpenFeatureResolution(
-      this.client.getJSONDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getJSONDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )

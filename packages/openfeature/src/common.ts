@@ -6,10 +6,10 @@ import {
 } from '@openfeature/core'
 import type {
   Configuration,
-  EvaluationContext as FlagStackEvaluationContext,
-  EvaluationDetails as FlagStackEvaluationDetails,
+  EvaluationContext as SwitchOnYourCodeEvaluationContext,
+  EvaluationDetails as SwitchOnYourCodeEvaluationDetails,
   EvaluationErrorCode,
-} from '@flagstack/core'
+} from '@switchonyourcode/core'
 
 const ERROR_CODES: Record<EvaluationErrorCode, ErrorCode> = {
   PARSE_ERROR: ErrorCode.PARSE_ERROR,
@@ -20,8 +20,8 @@ const ERROR_CODES: Record<EvaluationErrorCode, ErrorCode> = {
   TYPE_MISMATCH: ErrorCode.TYPE_MISMATCH,
 }
 
-export function toFlagStackContext(context: OpenFeatureEvaluationContext): FlagStackEvaluationContext {
-  const converted: FlagStackEvaluationContext = {}
+export function toSwitchOnYourCodeContext(context: OpenFeatureEvaluationContext): SwitchOnYourCodeEvaluationContext {
+  const converted: SwitchOnYourCodeEvaluationContext = {}
   for (const [key, value] of Object.entries(context)) {
     converted[key] = normalizeContextValue(value)
   }
@@ -29,7 +29,7 @@ export function toFlagStackContext(context: OpenFeatureEvaluationContext): FlagS
 }
 
 export function toOpenFeatureResolution<T>(
-  details: FlagStackEvaluationDetails<T>,
+  details: SwitchOnYourCodeEvaluationDetails<T>,
   configuration: Configuration | undefined,
   flagKey: string,
 ): ResolutionDetails<T> {
@@ -37,15 +37,15 @@ export function toOpenFeatureResolution<T>(
   const flagMetadata: FlagMetadata = {}
 
   if (configuration) {
-    flagMetadata['flagstack.environment'] = configuration.environment.key
-    flagMetadata['flagstack.environment_id'] = configuration.environment.id
+    flagMetadata['switchonyourcode.environment'] = configuration.environment.key
+    flagMetadata['switchonyourcode.environment_id'] = configuration.environment.id
   }
   if (flag) {
-    flagMetadata['flagstack.revision'] = flag.revision
-    flagMetadata['flagstack.enabled'] = flag.enabled
+    flagMetadata['switchonyourcode.revision'] = flag.revision
+    flagMetadata['switchonyourcode.enabled'] = flag.enabled
   }
   if (details.ruleId) {
-    flagMetadata['flagstack.rule_id'] = details.ruleId
+    flagMetadata['switchonyourcode.rule_id'] = details.ruleId
   }
 
   const resolution: ResolutionDetails<T> = {

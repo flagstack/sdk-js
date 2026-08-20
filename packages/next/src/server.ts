@@ -1,16 +1,16 @@
 import { cache } from 'react'
 import {
-  NodeFlagStackClient,
+  NodeSwitchOnYourCodeClient,
   createNodeClient,
-  type NodeFlagStackClientOptions,
-} from '@flagstack/node'
+  type NodeSwitchOnYourCodeClientOptions,
+} from '@switchonyourcode/node'
 
-export interface NextFlagStack {
-  getClient(): Promise<NodeFlagStackClient>
+export interface NextSwitchOnYourCode {
+  getClient(): Promise<NodeSwitchOnYourCodeClient>
   preload(): void
 }
 
-export function createNextFlagStack(options: NodeFlagStackClientOptions): NextFlagStack {
+export function createNextSwitchOnYourCode(options: NodeSwitchOnYourCodeClientOptions): NextSwitchOnYourCode {
   const getClient = cache(async () => createNodeClient({ ...options, autoPoll: false }))
 
   return {
@@ -22,7 +22,7 @@ export function createNextFlagStack(options: NodeFlagStackClientOptions): NextFl
 }
 
 export {
-  NodeFlagStackClient,
+  NodeSwitchOnYourCodeClient,
   createNodeClient,
 }
 export type {
@@ -32,5 +32,5 @@ export type {
   EvaluationErrorCode,
   EvaluationReason,
   FlagKind,
-  NodeFlagStackClientOptions,
-} from '@flagstack/node'
+  NodeSwitchOnYourCodeClientOptions,
+} from '@switchonyourcode/node'

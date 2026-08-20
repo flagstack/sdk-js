@@ -1,5 +1,5 @@
 {
-  "name": "@flagstack/sdk-js-workspace",
+  "name": "@switchonyourcode/sdk-js-workspace",
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@11.22.0",

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createNextFlagStack } from '../dist/server.js'
+import { createNextSwitchOnYourCode } from '../dist/server.js'
 import { useBooleanFlag } from '../dist/client.js'
 
 function configuration() {
@@ -24,16 +24,16 @@ function configuration() {
 }
 
 test('Next server helper loads and evaluates server configuration', async () => {
-  const flagstack = createNextFlagStack({
+  const switchonyourcode = createNextSwitchOnYourCode({
     baseUrl: 'https://flags.example.com',
-    serverKey: 'fs_server_test.secret',
+    serverKey: 'syoc_server_test.secret',
     fetch: async () => new Response(JSON.stringify(configuration()), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     }),
   })
 
-  const client = await flagstack.getClient()
+  const client = await switchonyourcode.getClient()
   assert.equal(client.getBooleanValue('server-feature', false), true)
 })
 

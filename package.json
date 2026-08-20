@@ -7,13 +7,16 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -b packages/core packages/browser packages/node packages/react packages/next",
-    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo packages/browser/dist packages/browser/tsconfig.tsbuildinfo packages/node/dist packages/node/tsconfig.tsbuildinfo packages/react/dist packages/react/tsconfig.tsbuildinfo packages/next/dist packages/next/tsconfig.tsbuildinfo",
+    "build": "tsc -b packages/core packages/browser packages/node packages/react packages/next packages/openfeature",
+    "clean": "rm -rf packages/core/dist packages/core/tsconfig.tsbuildinfo packages/browser/dist packages/browser/tsconfig.tsbuildinfo packages/node/dist packages/node/tsconfig.tsbuildinfo packages/react/dist packages/react/tsconfig.tsbuildinfo packages/next/dist packages/next/tsconfig.tsbuildinfo packages/openfeature/dist packages/openfeature/tsconfig.tsbuildinfo",
     "test": "pnpm run build && pnpm run test:built",
-    "test:built": "node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs packages/react/test/*.test.mjs packages/next/test/*.test.mjs",
-    "typecheck": "tsc -b packages/core packages/browser packages/node packages/react packages/next --pretty false"
+    "test:built": "node --test packages/core/test/*.test.mjs packages/browser/test/*.test.mjs packages/node/test/*.test.mjs packages/react/test/*.test.mjs packages/next/test/*.test.mjs packages/openfeature/test/*.test.mjs",
+    "typecheck": "tsc -b packages/core packages/browser packages/node packages/react packages/next packages/openfeature --pretty false"
   },
   "devDependencies": {
+    "@openfeature/core": "1.12.0",
+    "@openfeature/server-sdk": "1.23.0",
+    "@openfeature/web-sdk": "1.10.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",
     "react": "19.2.8",

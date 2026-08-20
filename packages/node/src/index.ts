@@ -1,24 +1,24 @@
 import {
-  FlagStackClient,
-  type FlagStackClientOptions,
+  SwitchOnYourCodeClient,
+  type SwitchOnYourCodeClientOptions,
   type RefreshResult,
-} from '@flagstack/core'
+} from '@switchonyourcode/core'
 
-const SERVER_KEY_PREFIX = 'fs_server_'
+const SERVER_KEY_PREFIX = 'syoc_server_'
 
-export interface NodeFlagStackClientOptions extends Omit<FlagStackClientOptions, 'sdkKey'> {
+export interface NodeSwitchOnYourCodeClientOptions extends Omit<SwitchOnYourCodeClientOptions, 'sdkKey'> {
   serverKey: string
   autoPoll?: boolean
 }
 
-export class NodeFlagStackClient extends FlagStackClient {
+export class NodeSwitchOnYourCodeClient extends SwitchOnYourCodeClient {
   readonly #autoPoll: boolean
 
-  constructor(options: NodeFlagStackClientOptions) {
+  constructor(options: NodeSwitchOnYourCodeClientOptions) {
     const { serverKey, autoPoll = false, ...clientOptions } = options
     const normalizedKey = serverKey.trim()
     if (!normalizedKey.startsWith(SERVER_KEY_PREFIX)) {
-      throw new TypeError('Node SDK requires a FlagStack server key (fs_server_...).')
+      throw new TypeError('Node SDK requires a SwitchOnYourCode server key (syoc_server_...).')
     }
 
     super({ ...clientOptions, sdkKey: normalizedKey })
@@ -34,18 +34,18 @@ export class NodeFlagStackClient extends FlagStackClient {
   }
 }
 
-export async function createNodeClient(options: NodeFlagStackClientOptions): Promise<NodeFlagStackClient> {
-  const client = new NodeFlagStackClient(options)
+export async function createNodeClient(options: NodeSwitchOnYourCodeClientOptions): Promise<NodeSwitchOnYourCodeClient> {
+  const client = new NodeSwitchOnYourCodeClient(options)
   await client.initialize()
   return client
 }
 
 export {
-  FlagStackAuthenticationError,
-  FlagStackConfigurationError,
-  FlagStackError,
-  FlagStackHTTPError,
-} from '@flagstack/core'
+  SwitchOnYourCodeAuthenticationError,
+  SwitchOnYourCodeConfigurationError,
+  SwitchOnYourCodeError,
+  SwitchOnYourCodeHTTPError,
+} from '@switchonyourcode/core'
 export type {
   Configuration,
   EvaluationContext,
@@ -53,4 +53,4 @@ export type {
   EvaluationErrorCode,
   EvaluationReason,
   FlagKind,
-} from '@flagstack/core'
+} from '@switchonyourcode/core'

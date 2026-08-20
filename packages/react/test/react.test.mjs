@@ -2,11 +2,11 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { BrowserFlagStackClient } from '@flagstack/browser'
+import { BrowserSwitchOnYourCodeClient } from '@switchonyourcode/browser'
 import {
-  FlagStackProvider,
+  SwitchOnYourCodeProvider,
   useBooleanFlag,
-  useFlagStackReady,
+  useSwitchOnYourCodeReady,
 } from '../dist/index.js'
 
 function configuration() {
@@ -30,9 +30,9 @@ function configuration() {
 }
 
 test('React hooks evaluate through the provided browser client', async () => {
-  const client = new BrowserFlagStackClient({
+  const client = new BrowserSwitchOnYourCodeClient({
     baseUrl: 'https://flags.example.com',
-    clientKey: 'fs_client_test',
+    clientKey: 'syoc_client_test',
     autoPoll: false,
     fetch: async () => new Response(JSON.stringify(configuration()), {
       status: 200,
@@ -42,13 +42,13 @@ test('React hooks evaluate through the provided browser client', async () => {
   await client.refresh()
 
   function FlagValue() {
-    const ready = useFlagStackReady()
+    const ready = useSwitchOnYourCodeReady()
     const enabled = useBooleanFlag('new-checkout', false)
     return createElement('span', null, `${ready}:${enabled}`)
   }
 
   const html = renderToStaticMarkup(
-    createElement(FlagStackProvider, { client }, createElement(FlagValue)),
+    createElement(SwitchOnYourCodeProvider, { client }, createElement(FlagValue)),
   )
   assert.equal(html, '<span>true:true</span>')
 })
@@ -61,6 +61,6 @@ test('React hooks require a provider', () => {
 
   assert.throws(
     () => renderToStaticMarkup(createElement(FlagValue)),
-    /FlagStackProvider/,
+    /SwitchOnYourCodeProvider/,
   )
 })

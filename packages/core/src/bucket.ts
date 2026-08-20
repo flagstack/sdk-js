@@ -12,7 +12,7 @@ const SHA256_CONSTANTS = new Uint32Array([
 ])
 
 export function bucket(environmentId: string, flagId: string, bucketValue: string): number {
-  const bytes = new TextEncoder().encode(`flagstack-v1\0${environmentId}\0${flagId}\0${bucketValue}`)
+  const bytes = new TextEncoder().encode(`switchonyourcode-v1\0${environmentId}\0${flagId}\0${bucketValue}`)
   const digest = sha256(bytes)
   const prefix = (((digest[0] ?? 0) << 24) | ((digest[1] ?? 0) << 16) | ((digest[2] ?? 0) << 8) | (digest[3] ?? 0)) >>> 0
   return prefix % BUCKET_SCALE

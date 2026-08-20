@@ -1,7 +1,7 @@
 {
-  "name": "@flagstack/node",
+  "name": "@switchonyourcode/node",
   "version": "0.0.0",
-  "description": "Official Node.js SDK for FlagStack feature flags.",
+  "description": "Official Node.js SDK for SwitchOnYourCode feature flags.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,6 +24,6 @@
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
-    "@flagstack/core": "workspace:*"
+    "@switchonyourcode/core": "workspace:*"
   }
 }

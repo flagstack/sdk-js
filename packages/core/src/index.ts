@@ -2,14 +2,14 @@ export { bucket } from './bucket.js'
 export { evaluateFlag } from './evaluator.js'
 export { validateEvaluationConfiguration } from './validation.js'
 export {
-  FlagStackAuthenticationError,
-  FlagStackClient,
-  FlagStackConfigurationError,
-  FlagStackError,
-  FlagStackHTTPError,
+  SwitchOnYourCodeAuthenticationError,
+  SwitchOnYourCodeClient,
+  SwitchOnYourCodeConfigurationError,
+  SwitchOnYourCodeError,
+  SwitchOnYourCodeHTTPError,
   parseConfiguration,
 } from './config-client.js'
-export type { FlagStackClientOptions, RefreshResult } from './config-client.js'
+export type { SwitchOnYourCodeClientOptions, RefreshResult } from './config-client.js'
 export {
   BUCKET_SCALE,
   SCHEMA_VERSION,

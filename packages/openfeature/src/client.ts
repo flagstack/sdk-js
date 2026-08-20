@@ -8,24 +8,24 @@ import {
   type ResolutionDetails,
 } from '@openfeature/web-sdk'
 import {
-  BrowserFlagStackClient,
-  type BrowserFlagStackClientOptions,
-} from '@flagstack/browser'
-import { toFlagStackContext, toOpenFeatureResolution } from './common.js'
+  BrowserSwitchOnYourCodeClient,
+  type BrowserSwitchOnYourCodeClientOptions,
+} from '@switchonyourcode/browser'
+import { toSwitchOnYourCodeContext, toOpenFeatureResolution } from './common.js'
 
-export type FlagStackClientProviderOptions = BrowserFlagStackClientOptions
+export type SwitchOnYourCodeClientProviderOptions = BrowserSwitchOnYourCodeClientOptions
 
-export class FlagStackClientProvider implements Provider {
-  readonly metadata = { name: 'FlagStack' } as const
+export class SwitchOnYourCodeClientProvider implements Provider {
+  readonly metadata = { name: 'Switch On Your Code' } as const
   readonly runsOn = 'client' as const
   readonly events = new OpenFeatureEventEmitter()
-  readonly client: BrowserFlagStackClient
+  readonly client: BrowserSwitchOnYourCodeClient
 
   #initialized = false
 
-  constructor(options: FlagStackClientProviderOptions) {
+  constructor(options: SwitchOnYourCodeClientProviderOptions) {
     const { onConfigurationChanged, ...clientOptions } = options
-    this.client = new BrowserFlagStackClient({
+    this.client = new BrowserSwitchOnYourCodeClient({
       ...clientOptions,
       onConfigurationChanged: (configuration) => {
         onConfigurationChanged?.(configuration)
@@ -53,7 +53,7 @@ export class FlagStackClientProvider implements Provider {
     _logger: Logger,
   ): ResolutionDetails<boolean> {
     return toOpenFeatureResolution(
-      this.client.getBooleanDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getBooleanDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )
@@ -66,7 +66,7 @@ export class FlagStackClientProvider implements Provider {
     _logger: Logger,
   ): ResolutionDetails<string> {
     return toOpenFeatureResolution(
-      this.client.getStringDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getStringDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )
@@ -79,7 +79,7 @@ export class FlagStackClientProvider implements Provider {
     _logger: Logger,
   ): ResolutionDetails<number> {
     return toOpenFeatureResolution(
-      this.client.getNumberDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getNumberDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )
@@ -92,7 +92,7 @@ export class FlagStackClientProvider implements Provider {
     _logger: Logger,
   ): ResolutionDetails<T> {
     return toOpenFeatureResolution(
-      this.client.getJSONDetails(flagKey, defaultValue, toFlagStackContext(context)),
+      this.client.getJSONDetails(flagKey, defaultValue, toSwitchOnYourCodeContext(context)),
       this.client.configuration,
       flagKey,
     )

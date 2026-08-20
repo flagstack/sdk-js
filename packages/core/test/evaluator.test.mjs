@@ -16,8 +16,8 @@ function booleanFlag(overrides = {}) {
   }
 }
 
-test('bucket matches the FlagStack v1 compatibility vector', () => {
-  assert.equal(bucket('env-1', 'flag-1', 'user-123'), 22683)
+test('bucket matches the SwitchOnYourCode v1 compatibility vector', () => {
+  assert.equal(bucket('env-1', 'flag-1', 'user-123'), 3837)
 })
 
 test('disabled flags return the project default', () => {
@@ -85,7 +85,7 @@ test('percentage rollout uses stable local bucketing', () => {
     },
   })
 
-  assert.equal(bucket('env-1', 'flag-1', 'user-123'), 22683)
+  assert.equal(bucket('env-1', 'flag-1', 'user-123'), 3837)
   assert.deepEqual(
     evaluateFlag(flag, 'env-1', { targetingKey: 'user-123' }),
     { value: true, variant: 'on', reason: 'SPLIT' },

@@ -10,8 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  core:
-    name: Core / Node ${{ matrix.node }}
+  sdk:
+    name: SDK packages / Node ${{ matrix.node }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,5 +31,5 @@ jobs:
         run: pnpm install --no-frozen-lockfile
       - name: Type-check and build
         run: pnpm run build
-      - name: Test
-        run: node --test packages/core/test/*.test.mjs
+      - name: Test built packages
+        run: pnpm run test:built

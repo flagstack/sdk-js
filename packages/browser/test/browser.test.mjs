@@ -84,8 +84,16 @@ test('browser realtime invalidation refreshes configuration through the ETag pat
         return new Response(
           new ReadableStream({
             start(controller) {
+              let closed = false
+              const close = () => {
+                if (!closed) {
+                  closed = true
+                  controller.close()
+                }
+              }
               eventController = controller
               controller.enqueue(encoder.encode('retry: 5000\nevent: ready\ndata: {"schema_version":1,"environment_id":"env-1"}\n\n'))
+              init?.signal?.addEventListener('abort', close, { once: true })
             },
           }),
           { status: 200, headers: { 'Content-Type': 'text/event-stream' } },

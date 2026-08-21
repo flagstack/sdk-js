@@ -41,7 +41,9 @@ export class NodeSwitchOnYourCodeClient extends SwitchOnYourCodeClient {
       baseUrl: clientOptions.baseUrl,
       sdkKey: normalizedKey,
       fetch: clientOptions.fetch ?? globalThis.fetch,
-      onConfigurationChanged: () => this.refresh(),
+      onConfigurationChanged: async () => {
+        await this.refresh()
+      },
       onError: clientOptions.onError,
     }
     if (realtimeReconnectDelayMs !== undefined) {

@@ -20,6 +20,26 @@ function eventResponse(body) {
   )
 }
 
+function liveEventResponse(body, signal, captureController) {
+  return new Response(
+    new ReadableStream({
+      start(controller) {
+        let closed = false
+        const close = () => {
+          if (!closed) {
+            closed = true
+            controller.close()
+          }
+        }
+        captureController(controller)
+        controller.enqueue(encoder.encode(body))
+        signal?.addEventListener('abort', close, { once: true })
+      },
+    }),
+    { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+  )
+}
+
 async function waitFor(predicate, timeoutMs = 1_000) {
   const deadline = Date.now() + timeoutMs
   while (!predicate()) {
@@ -76,14 +96,12 @@ test('configuration_changed events are coalesced while a refresh is in flight', 
     onError: (error) => {
       throw error
     },
-    fetch: async () => new Response(
-      new ReadableStream({
-        start(controller) {
-          eventController = controller
-          controller.enqueue(encoder.encode('retry: 5000\nevent: ready\ndata: {}\n\n'))
-        },
-      }),
-      { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+    fetch: async (_input, init) => liveEventResponse(
+      'retry: 5000\nevent: ready\ndata: {}\n\n',
+      init?.signal,
+      (controller) => {
+        eventController = controller
+      },
     ),
   })
 
@@ -97,6 +115,7 @@ test('configuration_changed events are coalesced while a refresh is in flight', 
   await new Promise((resolve) => setTimeout(resolve, 20))
   assert.equal(refreshes, 2)
   stream.stop()
+  await waitFor(() => !stream.running)
 })
 
 test('credential_revoked is terminal and surfaces an authentication error', async () => {

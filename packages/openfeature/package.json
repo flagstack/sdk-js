@@ -1,7 +1,7 @@
 {
   "name": "@switchonyourcode/openfeature",
   "version": "0.0.0",
-  "description": "OpenFeature providers for SwitchOnYourCode JavaScript and TypeScript SDKs.",
+  "description": "OpenFeature providers for Switch On Your Code JavaScript and TypeScript SDKs.",
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,

@@ -24,7 +24,7 @@ const configuration = {
 test('browser client refuses secret server SDK keys', () => {
   assert.throws(
     () => new BrowserSwitchOnYourCodeClient({ baseUrl: 'https://flags.example.com', clientKey: 'syoc_server_secret.value' }),
-    /requires a SwitchOnYourCode client key/,
+    /requires a Switch On Your Code client key/,
   )
 })
 

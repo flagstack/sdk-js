@@ -1,7 +1,7 @@
 {
   "name": "@switchonyourcode/core",
   "version": "0.0.0",
-  "description": "Shared local-evaluation core for SwitchOnYourCode JavaScript and TypeScript SDKs.",
+  "description": "Shared local-evaluation core for Switch On Your Code JavaScript and TypeScript SDKs.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",

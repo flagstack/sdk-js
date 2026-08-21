@@ -1,7 +1,7 @@
 {
   "name": "@switchonyourcode/react",
   "version": "0.0.0",
-  "description": "React bindings for the SwitchOnYourCode browser SDK.",
+  "description": "React bindings for the Switch On Your Code browser SDK.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",

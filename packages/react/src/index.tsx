@@ -26,7 +26,7 @@ export function SwitchOnYourCodeProvider({ client, children }: SwitchOnYourCodeP
 export function useSwitchOnYourCodeClient(): BrowserSwitchOnYourCodeClient {
   const client = useContext(SwitchOnYourCodeContext)
   if (!client) {
-    throw new Error('SwitchOnYourCode hooks must be used inside a SwitchOnYourCodeProvider.')
+    throw new Error('Switch On Your Code hooks must be used inside a SwitchOnYourCodeProvider.')
   }
   return client
 }

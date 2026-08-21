@@ -14,6 +14,8 @@ Runtime-neutral configuration and evaluation engine. It provides:
 
 - bearer-authenticated schema-v1 configuration refreshes;
 - strong ETag revalidation with `If-None-Match` / `304 Not Modified`;
+- authenticated Server-Sent Events (SSE) invalidation support through `/sdk/v1/events`;
+- automatic SSE reconnects, server retry-hint handling and terminal credential-revocation handling;
 - retention of the last known-good configuration after refresh failures;
 - synchronous local evaluation for boolean, string, number and JSON flags;
 - deterministic SHA-256 percentage bucketing compatible with Switch On Your Code's Go evaluator;
@@ -23,11 +25,13 @@ Runtime-neutral configuration and evaluation engine. It provides:
 - semantic-version, RE2-compatible regex, collection and numeric operators;
 - OpenFeature-style resolution reasons and error metadata.
 
+Realtime events are invalidation signals only. A `configuration_changed` event triggers the same ETag-aware `/sdk/v1/config` refresh path used by polling; configuration documents are not sent over SSE. This keeps one authoritative configuration-delivery contract while allowing near-immediate updates.
+
 ### `@switchonyourcode/browser`
 
 Browser-oriented lifecycle and credential safety around `@switchonyourcode/core`.
 
-It only accepts public Switch On Your Code client SDK keys (`syoc_client_...`) and rejects server credentials before any request is made. `createBrowserClient()` performs the initial configuration refresh and starts polling by default.
+It only accepts public Switch On Your Code client SDK keys (`syoc_client_...`) and rejects server credentials before any request is made. `createBrowserClient()` performs the initial configuration refresh, starts the authenticated SSE stream by default, and retains a five-minute polling interval as a safety net.
 
 ```ts
 import { createBrowserClient } from '@switchonyourcode/browser'
@@ -43,7 +47,9 @@ const enabled = flags.getBooleanValue('new-checkout', false, {
 })
 ```
 
-Pass `autoPoll: false` when an application wants to control refreshes itself. Call `close()` when the client is no longer needed.
+The browser SDK uses streaming `fetch` rather than native `EventSource`, because the Switch On Your Code event endpoint requires a bearer `Authorization` header. No additional realtime dependency is required.
+
+Use `autoRealtime: false` to disable SSE, `autoPoll: false` to disable the fallback poll, or `pollIntervalMs` to change its interval. `realtimeReconnectDelayMs` controls the initial reconnect delay; the SDK subsequently honours valid `retry` hints sent by the server. `startRealtime()` and `stopRealtime()` are also available for explicit lifecycle control. Call `close()` when the client is no longer needed; it stops both realtime delivery and polling.
 
 Client SDK keys are deliberately public and only receive flags explicitly marked client-visible in Switch On Your Code. Never embed a server SDK key in browser code.
 
@@ -51,7 +57,9 @@ Client SDK keys are deliberately public and only receive flags explicitly marked
 
 Node.js lifecycle and credential safety around `@switchonyourcode/core`.
 
-It requires a secret server SDK key (`syoc_server_...`). `createNodeClient()` performs the initial refresh but does not start a background polling interval unless `autoPoll: true` is requested, allowing CLI and serverless processes to exit normally.
+It requires a secret server SDK key (`syoc_server_...`). `createNodeClient()` performs the initial refresh but does not start background realtime delivery or polling by default, allowing CLI and serverless processes to exit normally.
+
+Long-running services can opt into realtime invalidation:
 
 ```ts
 import { createNodeClient } from '@switchonyourcode/node'
@@ -59,7 +67,7 @@ import { createNodeClient } from '@switchonyourcode/node'
 const flags = await createNodeClient({
   baseUrl: 'https://flags.example.com',
   serverKey: process.env.SWITCHONYOURCODE_SDK_KEY!,
-  autoPoll: true,
+  autoRealtime: true,
 })
 
 const variant = flags.getStringValue('checkout-layout', 'control', {
@@ -68,11 +76,11 @@ const variant = flags.getStringValue('checkout-layout', 'control', {
 })
 ```
 
-Long-running services can enable polling; short-lived processes can call `refresh()` explicitly when needed.
+With `autoRealtime: true`, the Node SDK also enables a five-minute polling safety net unless `autoPoll: false` is explicitly supplied. Applications can instead use `startRealtime()` / `stopRealtime()`, polling alone, or explicit `refresh()` calls. `close()` stops all background activity.
 
 ### `@switchonyourcode/react`
 
-Reactive React bindings over `@switchonyourcode/browser`. A `SwitchOnYourCodeProvider` supplies a browser client, while hooks subscribe to configuration changes through React's external-store API and continue to evaluate locally.
+Reactive React bindings over `@switchonyourcode/browser`. A `SwitchOnYourCodeProvider` supplies a browser client, while hooks subscribe to configuration changes through React's external-store API and continue to evaluate locally. Because the browser client uses realtime invalidation by default, React consumers update when refreshed configuration arrives without adding another realtime layer.
 
 ```tsx
 import { SwitchOnYourCodeProvider, useBooleanFlag } from '@switchonyourcode/react'
@@ -142,7 +150,7 @@ await OpenFeature.setProviderAndWait(
   new SwitchOnYourCodeServerProvider({
     baseUrl: 'https://flags.example.com',
     serverKey: process.env.SWITCHONYOURCODE_SDK_KEY!,
-    autoPoll: true,
+    autoRealtime: true,
   }),
 )
 
@@ -181,14 +189,33 @@ The adapters:
 - emit `PROVIDER_CONFIGURATION_CHANGED` after refreshed configuration changes;
 - keep server and browser provider entry points separate so server credentials and dependencies cannot enter a browser bundle accidentally.
 
-The server provider follows `@switchonyourcode/node` lifecycle defaults, so polling is opt-in. The client provider follows `@switchonyourcode/browser` and polls by default.
+The server provider follows `@switchonyourcode/node` lifecycle defaults, so realtime delivery remains opt-in. The client provider follows `@switchonyourcode/browser`, so realtime invalidation and the slow polling safety net are enabled by default.
+
+## Realtime invalidation
+
+The runtime packages consume Switch On Your Code's authenticated SSE endpoint:
+
+```text
+GET /sdk/v1/events
+Authorization: Bearer <SDK key>
+Accept: text/event-stream
+```
+
+The server sends `ready`, `configuration_changed` and terminal `credential_revoked` events, plus periodic keepalive comments. On `configuration_changed`, the SDK does not trust or install data from the event itself. It calls `/sdk/v1/config` with the cached ETag and either receives `304 Not Modified` or validates and atomically installs a new schema-v1 document.
+
+Transient stream closure causes an automatic reconnect. Multiple invalidations arriving while a configuration refresh is already running are coalesced into at most one follow-up refresh. This avoids concurrent refresh storms while ensuring an update that arrives during a fetch is not lost.
+
+Polling remains available as a recovery path for networks or proxies that do not preserve long-lived event streams.
 
 ## Core usage
 
 Applications that need complete lifecycle control can use `@switchonyourcode/core` directly:
 
 ```ts
-import { SwitchOnYourCodeClient } from '@switchonyourcode/core'
+import {
+  SwitchOnYourCodeClient,
+  SwitchOnYourCodeRealtimeStream,
+} from '@switchonyourcode/core'
 
 const flags = new SwitchOnYourCodeClient({
   baseUrl: 'https://flags.example.com',
@@ -196,6 +223,17 @@ const flags = new SwitchOnYourCodeClient({
 })
 
 await flags.refresh()
+
+const realtime = new SwitchOnYourCodeRealtimeStream({
+  baseUrl: 'https://flags.example.com',
+  sdkKey: process.env.SWITCHONYOURCODE_SDK_KEY!,
+  fetch,
+  onConfigurationChanged: async () => {
+    await flags.refresh()
+  },
+  onError: console.error,
+})
+realtime.start()
 ```
 
 `refresh()` only replaces in-memory state after the downloaded document passes schema and evaluator validation. A later refresh failure does not erase the last valid configuration.

@@ -69,17 +69,22 @@ test('long-running node clients can opt into realtime invalidation', async () =>
     serverKey: 'syoc_server_credential.secret',
     autoRealtime: true,
     autoPoll: false,
-    fetch: async (input) => {
+    realtimeReconnectDelayMs: 60_000,
+    fetch: async (input, init) => {
       const url = String(input)
       if (url.endsWith('/sdk/v1/events')) {
         eventRequests += 1
         return new Response(
           new ReadableStream({
-            start() {},
+            start(controller) {
+              controller.enqueue(new TextEncoder().encode('event: ready\ndata: {}\n\n'))
+              controller.close()
+            },
           }),
           { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
         )
       }
+      assert.equal(init?.signal, undefined)
       return new Response(JSON.stringify(configuration), {
         status: 200,
         headers: { 'Content-Type': 'application/json', ETag: '"node-v1"' },

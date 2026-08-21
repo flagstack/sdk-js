@@ -20,7 +20,7 @@ export class BrowserSwitchOnYourCodeClient extends SwitchOnYourCodeClient {
     const { clientKey, autoPoll = true, onConfigurationChanged, ...clientOptions } = options
     const normalizedKey = clientKey.trim()
     if (!normalizedKey.startsWith(CLIENT_KEY_PREFIX)) {
-      throw new TypeError('Browser SDK requires a SwitchOnYourCode client key (syoc_client_...).')
+      throw new TypeError('Browser SDK requires a Switch On Your Code client key (syoc_client_...).')
     }
 
     const configurationListeners = new Set<() => void>()

@@ -1,7 +1,7 @@
 {
   "name": "@switchonyourcode/node",
   "version": "0.0.0",
-  "description": "Official Node.js SDK for SwitchOnYourCode feature flags.",
+  "description": "Official Node.js SDK for Switch On Your Code feature flags.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",

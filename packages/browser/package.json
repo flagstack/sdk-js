@@ -1,7 +1,7 @@
 {
   "name": "@switchonyourcode/browser",
   "version": "0.0.0",
-  "description": "Official browser SDK for SwitchOnYourCode feature flags.",
+  "description": "Official browser SDK for Switch On Your Code feature flags.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",

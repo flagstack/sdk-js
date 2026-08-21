@@ -24,7 +24,7 @@ const configuration = {
 test('node client refuses public client SDK keys', () => {
   assert.throws(
     () => new NodeSwitchOnYourCodeClient({ baseUrl: 'https://flags.example.com', serverKey: 'syoc_client_public-id' }),
-    /requires a SwitchOnYourCode server key/,
+    /requires a Switch On Your Code server key/,
   )
 })
 

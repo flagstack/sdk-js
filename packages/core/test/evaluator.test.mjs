@@ -16,7 +16,7 @@ function booleanFlag(overrides = {}) {
   }
 }
 
-test('bucket matches the SwitchOnYourCode v1 compatibility vector', () => {
+test('bucket matches the Switch On Your Code v1 compatibility vector', () => {
   assert.equal(bucket('env-1', 'flag-1', 'user-123'), 3837)
 })
 

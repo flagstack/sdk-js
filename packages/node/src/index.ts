@@ -18,7 +18,7 @@ export class NodeSwitchOnYourCodeClient extends SwitchOnYourCodeClient {
     const { serverKey, autoPoll = false, ...clientOptions } = options
     const normalizedKey = serverKey.trim()
     if (!normalizedKey.startsWith(SERVER_KEY_PREFIX)) {
-      throw new TypeError('Node SDK requires a SwitchOnYourCode server key (syoc_server_...).')
+      throw new TypeError('Node SDK requires a Switch On Your Code server key (syoc_server_...).')
     }
 
     super({ ...clientOptions, sdkKey: normalizedKey })

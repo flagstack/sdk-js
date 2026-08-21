@@ -1,7 +1,7 @@
 {
   "name": "@switchonyourcode/next",
   "version": "0.0.0",
-  "description": "Next.js App Router integration for SwitchOnYourCode.",
+  "description": "Next.js App Router integration for Switch On Your Code.",
   "license": "Apache-2.0",
   "type": "module",
   "sideEffects": false,

@@ -11,6 +11,11 @@ export {
 } from './config-client.js'
 export type { SwitchOnYourCodeClientOptions, RefreshResult } from './config-client.js'
 export {
+  SwitchOnYourCodeRealtimeError,
+  SwitchOnYourCodeRealtimeStream,
+} from './realtime.js'
+export type { SwitchOnYourCodeRealtimeStreamOptions } from './realtime.js'
+export {
   BUCKET_SCALE,
   SCHEMA_VERSION,
 } from './types.js'

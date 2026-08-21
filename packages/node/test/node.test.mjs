@@ -21,6 +21,16 @@ const configuration = {
   segments: [],
 }
 
+async function waitFor(predicate, timeoutMs = 1_000) {
+  const deadline = Date.now() + timeoutMs
+  while (!predicate()) {
+    if (Date.now() >= deadline) {
+      throw new Error('Timed out waiting for Node realtime condition.')
+    }
+    await new Promise((resolve) => setTimeout(resolve, 5))
+  }
+}
+
 test('node client refuses public client SDK keys', () => {
   assert.throws(
     () => new NodeSwitchOnYourCodeClient({ baseUrl: 'https://flags.example.com', serverKey: 'syoc_client_public-id' }),
@@ -28,7 +38,7 @@ test('node client refuses public client SDK keys', () => {
   )
 })
 
-test('node initializer loads configuration without requiring background polling', async () => {
+test('node initializer loads configuration without requiring background activity', async () => {
   let requests = 0
   const client = await createNodeClient({
     baseUrl: 'https://flags.example.com',
@@ -46,7 +56,39 @@ test('node initializer loads configuration without requiring background polling'
 
   assert.equal(requests, 1)
   assert.equal(client.ready, true)
+  assert.equal(client.realtimeRunning, false)
   assert.equal(client.etag, '"node-v1"')
   assert.equal(client.getBooleanValue('new-checkout', false), true)
   client.close()
+})
+
+test('long-running node clients can opt into realtime invalidation', async () => {
+  let eventRequests = 0
+  const client = await createNodeClient({
+    baseUrl: 'https://flags.example.com',
+    serverKey: 'syoc_server_credential.secret',
+    autoRealtime: true,
+    autoPoll: false,
+    fetch: async (input) => {
+      const url = String(input)
+      if (url.endsWith('/sdk/v1/events')) {
+        eventRequests += 1
+        return new Response(
+          new ReadableStream({
+            start() {},
+          }),
+          { status: 200, headers: { 'Content-Type': 'text/event-stream' } },
+        )
+      }
+      return new Response(JSON.stringify(configuration), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json', ETag: '"node-v1"' },
+      })
+    },
+  })
+
+  await waitFor(() => eventRequests === 1)
+  assert.equal(client.realtimeRunning, true)
+  client.close()
+  await waitFor(() => !client.realtimeRunning)
 })
